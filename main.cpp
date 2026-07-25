@@ -17,6 +17,15 @@ int main() {
 
     std::vector <Item> itemsCatalogue{};
 
+    public:
+    int getItemsInCatalogueQuantity() {
+        return itemsCatalogue.size();
+    };
+
+    Item getItemBySku(sku) {
+
+    }
+
     };
 
 
@@ -48,7 +57,6 @@ int main() {
     };
 
     Magazine M01("Magazyn1");
-
 
     return 0;
 }
