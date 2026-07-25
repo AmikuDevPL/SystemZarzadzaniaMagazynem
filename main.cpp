@@ -4,6 +4,8 @@
 
 int main() {
 
+    class SystemManager {
+    private:
     struct Item {
         std::string sku;
         std::string name;
@@ -13,44 +15,40 @@ int main() {
         int min_stock_alert{0};
     };
 
+    std::vector <Item> itemsCatalogue{};
+
+    };
+
+
     class Magazine {
     private:
         std::string magazine_name;
-        std::vector<Item> items;
+        struct Drawer {
+            int small_containers_quantity{0};
+            int row{0};
+            int column{0};
+            struct Small_container {
+                int row{0};
+                int column{0};
+                int item_quantity{0};
+                std::string sku {};
+            };
+            std::vector <Small_container> small_containers{};
+
+            Drawer(const int quantity)
+                :   small_containers_quantity(quantity),
+                    small_containers(quantity)
+            {}
+        };
 
     public:
         Magazine(std::string magazine_name) {
             this->magazine_name = magazine_name;
         }
-
-        void addItem(Item item) {
-            items.push_back(item);
-        }
-
-        void showItems() const {
-            for (const auto& item : items) {
-                std::cout << item.sku << " | "
-                          << item.name << " | "
-                          << item.manufacturer << " | "
-                          << item.part_number << " | "
-                          << item.footprint << " | "
-                          << item.min_stock_alert << '\n';
-            }
-        }
     };
 
     Magazine M01("Magazyn1");
 
-    M01.addItem({
-        "CAP-100NF-0603",
-    "Kondensator 100nF",
-    "Murata",
-    "GRM188R71E104KA01D",
-    "0603",
-    50
-    });
-
-    M01.showItems();
 
     return 0;
 }
