@@ -96,6 +96,7 @@ int main() {
     };
 
     Magazine M01("Magazyn1");
+    std::cerr << "cerr" << '\n';
 
     return 0;
 }
