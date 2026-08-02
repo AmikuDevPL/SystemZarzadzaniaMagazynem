@@ -31,29 +31,26 @@ int main() {
             return itemsCatalogue.size();
         }
 
-        Item* getItemBySku(const std::string& sku) {
+        std::optional<std::reference_wrapper<const Item>> getItemBySku(const std::string& sku) {
             for (auto& i : itemsCatalogue) {
                 if (i.sku == sku) {
-                    return &i;
-                    break;
-                } else {
-                    continue;
+                    return i;
                 }
             }
-            return nullptr;
+            return std::nullopt;
         }
 
-        Item* getItemByName(const std::string& name) {
+        std::optional<std::reference_wrapper<const Item>> getItemByName(const std::string& name) {
             for (auto& i : itemsCatalogue) {
                 if (i.name == name) {
-                    return &i;
+                    return i;
                 }
             }
-            return nullptr;
+            return std::nullopt;
         }
 
         void addItem(std::string sku, std::string name, std::string manufacturer, std::string part_number, std::string footprint, int min_stock_alert) {
-            itemsCatalogue.emplace_back(sku, name, manufacturer, part_number, footprint, min_stock_alert);
+            itemsCatalogue.emplace_back(std::move(sku), std::move(name), std::move(manufacturer), std::move(part_number), std::move(footprint), min_stock_alert);
         }
 
     };
@@ -81,12 +78,9 @@ int main() {
 
         std::vector <Drawer> drawers {};
 
-        SystemManager MainSystemManager;
-
     public:
-        Magazine(const std::string& magazine_name, const SystemManager& MainSystemManager) {
+        Magazine(const std::string& magazine_name) {
             this->magazine_name = magazine_name;
-            this->MainSystemManager = MainSystemManager;
         }
 
         void addDrawer(int row, int column) {
@@ -103,13 +97,13 @@ int main() {
             }
         }
 
-        Drawer* getDrawerById(const unsigned long long drawer_id) {
+        std::optional<std::reference_wrapper<const Drawer>> getDrawerById(const unsigned long long drawer_id) {
             for (auto& i : drawers) {
                 if (i.drawer_id == drawer_id) {
-                    return &i;
+                    return i;
                 }
             }
-            return nullptr;
+            return std::nullopt;
         }
 
         std::vector <Drawer> getDrawers() {
@@ -120,6 +114,7 @@ int main() {
             for (auto& i : drawers) {
                 if (i.drawer_id == drawer_id) {
                     i.small_containers_quantity = rows*columns;
+                    i.small_containers.reserve(rows * columns);
                     for (int j = 0; j < columns; j++) {
                         for (int k = 0; k < rows; k++) {
                             int row = k;
@@ -133,8 +128,11 @@ int main() {
 
     };
 
-    SystemManager MainSystemManager;
+    SystemManager mainSystemManager;
+    mainSystemManager.addItem("SKU123", "Resistor 10k", "Vishay", "V123", "0805", 100);
 
+    Magazine mainMagazine("Magazyn Główny");
+    mainMagazine.addDrawers(2, 2);
 
     return 0;
 }
