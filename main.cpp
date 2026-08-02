@@ -6,7 +6,7 @@
 int main() {
 
     class SystemManager {
-        private:
+        public:
         struct Item {
             std::string sku;
             std::string name;
@@ -14,38 +14,42 @@ int main() {
             std::string part_number;
             std::string footprint;
             int min_stock_alert{0};
-            Item(std::string sku,std::string name,std::string manufacturer,std::string part_number,std::string footprint,int min_stock_alert)
-            :   sku(sku), name(name), manufacturer(manufacturer), part_number(part_number), footprint(footprint), min_stock_alert(min_stock_alert)
+            Item(std::string sku,std::string name,std::string manufacturer,std::string part_number,std::string footprint,const int min_stock_alert)
+            :
+                sku(std::move(sku)),
+                name(std::move(name)),
+                manufacturer(std::move(manufacturer)),
+                part_number(std::move(part_number)),
+                footprint(std::move(footprint)),
+                min_stock_alert(min_stock_alert)
             {}
         };
 
         std::vector <Item> itemsCatalogue{};
 
-        public:
-        int getItemsInCatalogueQuantity() {
+        [[nodiscard]] auto getItemsInCatalogueQuantity() const {
             return itemsCatalogue.size();
-        };
-
-        std::optional<Item> getItemBySku(std::string sku) {
-            for (auto& i : itemsCatalogue) {
-                if (i.sku == sku) {
-                    return i;
-                    break;
-                } else {
-                    continue;
-                }
-            }
         }
 
-        std::optional<Item> getItemByName(std::string name) {
+        Item* getItemBySku(const std::string& sku) {
             for (auto& i : itemsCatalogue) {
-                if (i.name == name) {
-                    return i;
+                if (i.sku == sku) {
+                    return &i;
                     break;
                 } else {
                     continue;
                 }
             }
+            return nullptr;
+        }
+
+        Item* getItemByName(const std::string& name) {
+            for (auto& i : itemsCatalogue) {
+                if (i.name == name) {
+                    return &i;
+                }
+            }
+            return nullptr;
         }
 
         void addItem(std::string sku, std::string name, std::string manufacturer, std::string part_number, std::string footprint, int min_stock_alert) {
@@ -60,7 +64,7 @@ int main() {
         std::string magazine_name;
 
         struct Drawer {
-            int drawer_id{0};
+            unsigned long long drawer_id{0};
             int small_containers_quantity{0};
             int row{0};
             int column{0};
@@ -69,46 +73,50 @@ int main() {
                 int column{0};
                 int item_quantity{0};
                 std::string itemSku {};
-                Small_container(int row, int column) : row(row), column(column) {}
+                Small_container(const int row, const int column) : row(row), column(column) {}
             };
             std::vector <Small_container> small_containers{};
-            Drawer(int drawer_id, int row, int column) : drawer_id(drawer_id), row(row), column(column) {}
+            Drawer(const unsigned long long drawer_id, const int row, const int column) : drawer_id(drawer_id), row(row), column(column) {}
         };
 
         std::vector <Drawer> drawers {};
 
+        SystemManager MainSystemManager;
+
     public:
-        Magazine(std::string magazine_name) {
+        Magazine(const std::string& magazine_name, const SystemManager& MainSystemManager) {
             this->magazine_name = magazine_name;
+            this->MainSystemManager = MainSystemManager;
         }
 
         void addDrawer(int row, int column) {
-            int drawer_id = drawers.size() + 1;
+            unsigned long long drawer_id = drawers.size() + 1;
             drawers.emplace_back(drawer_id, row, column);
         }
 
-        void addDrawers(int rows, int columns) {
+        void addDrawers(const int rows,const int columns) {
             for (int i = 0; i < columns; i++) {
                 for (int j = 0; j < rows; j++) {
-                    int drawer_id = drawers.size() + 1;
+                    unsigned long long drawer_id = drawers.size() + 1;
                     drawers.emplace_back(drawer_id, j, i);
                 }
             }
         }
 
-        std::optional<Drawer> getDrawerById(int drawer_id) {
+        Drawer* getDrawerById(const unsigned long long drawer_id) {
             for (auto& i : drawers) {
                 if (i.drawer_id == drawer_id) {
-                    return i;
+                    return &i;
                 }
             }
+            return nullptr;
         }
 
         std::vector <Drawer> getDrawers() {
             return drawers;
         }
 
-        void addContainers(int rows, int columns, int drawer_id) {
+        void addContainers(const int rows, const int columns, const unsigned long long drawer_id) {
             for (auto& i : drawers) {
                 if (i.drawer_id == drawer_id) {
                     i.small_containers_quantity = rows*columns;
@@ -123,19 +131,9 @@ int main() {
             }
         }
 
-
     };
 
     SystemManager MainSystemManager;
-    MainSystemManager.addItem("sku", "nazwa przedmiotu", "marka", "part number", "obudowa", 10);
-    std::cerr << MainSystemManager.getItemsInCatalogueQuantity() << '\n';
-    std::cerr << MainSystemManager.getItemByName("nazwa przedmiotu")->sku << '\n';
-    std::cerr << MainSystemManager.getItemBySku("sku")->name << '\n';
-
-    Magazine M01("Magazyn1");
-    M01.addDrawer(1, 1);
-    M01.addContainers(12, 12, 1);
-    std::cerr << M01.getDrawerById(1)->small_containers_quantity << '\n';
 
 
     return 0;
